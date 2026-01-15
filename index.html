@@ -3,10 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Market360</title>
+  <title>Market360 v3.0</title>
   <link rel="icon" type="image/png" href="https://i.postimg.cc/BQmSwV19/BULLISH.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    :root {
+      --primary: #3b82f6;
+      --success: #10b981;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -16,135 +27,127 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       background: #ffffff;
-      color: #1f2937;
-      line-height: 1.6;
+      color: var(--gray-900);
+      line-height: 1.5;
     }
 
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 20px;
     }
 
     /* Header */
     .header {
       background: #ffffff;
-      padding: 40px 0;
+      padding: 32px 0;
       text-align: center;
-      border-bottom: 1px solid #e5e7eb;
+      border-bottom: 1px solid var(--gray-200);
     }
 
     .logo-section {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 12px;
+      gap: 12px;
+      margin-bottom: 8px;
     }
 
     .logo {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
     }
 
     .header h1 {
-      font-size: 36px;
+      font-size: clamp(24px, 4vw, 32px);
       font-weight: 700;
-      color: #111827;
-      margin-bottom: 4px;
+      color: var(--gray-900);
+      margin-bottom: 2px;
     }
 
     .header-subtitle {
-      font-size: 18px;
-      color: #6b7280;
+      font-size: clamp(14px, 2.5vw, 16px);
+      color: var(--gray-600);
       font-weight: 500;
     }
 
-    /* Stats */
+    /* COMPACT STATS - Inline */
     .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      margin: 48px 0;
-    }
-
-    .stat-card {
-      background: #f9fafb;
-      padding: 28px;
-      border-radius: 12px;
-      text-align: center;
-      border: 1px solid #f3f4f6;
-      transition: all 0.2s ease;
-    }
-
-    .stat-card:hover {
-      background: #ffffff;
-      border-color: #e5e7eb;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      margin: 0 auto 16px;
-      border-radius: 12px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #ffffff;
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      background: #ffffff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      margin: 32px 0;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .stat-item {
+      flex: 1;
+      padding: 16px 12px;
+      text-align: center;
+      border-right: 1px solid var(--gray-200);
+      transition: background 0.2s ease;
+    }
+
+    .stat-item:last-child {
+      border-right: none;
+    }
+
+    .stat-item:hover {
+      background: var(--gray-50);
     }
 
     .stat-number {
-      font-size: 32px;
+      font-size: clamp(16px, 3vw, 20px);
       font-weight: 700;
-      color: #111827;
-      margin-bottom: 8px;
+      color: var(--gray-900);
+      display: block;
     }
 
     .stat-label {
-      color: #6b7280;
-      font-size: 14px;
+      font-size: 11px;
+      color: var(--gray-600);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      margin-top: 2px;
     }
 
     /* Tabs */
     .tabs {
       display: flex;
       background: #ffffff;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--gray-200);
       border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .tab-btn {
       flex: 1;
       border: none;
-      padding: 20px 24px;
-      background: #f9fafb;
-      color: #6b7280;
-      font-size: 16px;
+      padding: 16px 20px;
+      background: var(--gray-50);
+      color: var(--gray-600);
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
     }
 
     .tab-btn:hover {
-      background: #f3f4f6;
+      background: var(--gray-100);
     }
 
     .tab-btn.active {
-      background: #3b82f6;
+      background: var(--primary);
       color: #ffffff;
     }
 
@@ -155,7 +158,7 @@
 
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.3s ease;
+      animation: fadeIn 0.2s ease;
     }
 
     @keyframes fadeIn {
@@ -163,21 +166,22 @@
       to { opacity: 1; }
     }
 
-    /* Stock Cards */
+    /* COMPACT STOCK CARDS */
     .stocks-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
     }
 
     .stock-card {
       background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      overflow: hidden;
     }
 
     .stock-card::before {
@@ -186,96 +190,105 @@
       left: 0;
       top: 0;
       bottom: 0;
-      width: 4px;
-      background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
-      border-radius: 16px 0 0 16px;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--primary), #1d4ed8);
+      border-radius: 12px 0 0 12px;
     }
 
     .stock-card:hover {
-      border-color: #3b82f6;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
     }
 
     .stock-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 24px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #f3f4f6;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-200);
+      gap: 12px;
     }
 
     .stock-title {
       flex: 1;
+      min-width: 0;
     }
 
     .stock-name {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
-      color: #111827;
-      margin-bottom: 6px;
+      color: var(--gray-900);
+      margin-bottom: 4px;
       line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .stock-symbol {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
-      color: #3b82f6;
+      color: var(--primary);
       background: #eff6ff;
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 4px 8px;
+      border-radius: 12px;
       display: inline-block;
     }
 
     .status-badge {
-      background: #10b981;
+      background: var(--success);
       color: #ffffff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
+    /* COMPACT 2x2 PRICE GRID */
     .price-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .price-item {
-      padding: 20px;
-      background: #f9fafb;
-      border-radius: 12px;
+      padding: 12px 8px;
+      background: var(--gray-50);
+      border-radius: 8px;
       text-align: center;
-      border: 1px solid #f3f4f6;
+      border: 1px solid var(--gray-100);
       transition: all 0.2s ease;
     }
 
     .price-item:hover {
-      background: #f3f4f6;
+      background: var(--gray-100);
     }
 
     .price-label {
-      font-size: 12px;
-      color: #6b7280;
+      font-size: 10px;
+      color: var(--gray-600);
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .price-value {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 700;
-      color: #111827;
+      color: var(--gray-900);
+      line-height: 1.2;
     }
 
     .pnl-positive .price-value {
-      color: #10b981;
+      color: var(--success);
     }
 
     .pnl-negative .price-value {
@@ -286,53 +299,67 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 20px;
-      border-top: 1px solid #f3f4f6;
-      font-size: 14px;
-      color: #6b7280;
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-200);
+      font-size: 12px;
+      color: var(--gray-600);
     }
 
     .footer-icon {
-      color: #3b82f6;
-      margin-right: 8px;
-      width: 16px;
+      color: var(--primary);
+      margin-right: 4px;
+      font-size: 11px;
+      width: 12px;
     }
 
+    /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 80px 40px;
-      color: #9ca3af;
+      padding: 60px 20px;
+      color: var(--gray-500);
     }
 
     .empty-state i {
-      font-size: 48px;
-      color: #d1d5db;
-      margin-bottom: 24px;
+      font-size: 40px;
+      color: var(--gray-300);
+      margin-bottom: 16px;
     }
 
     .empty-state h3 {
-      font-size: 20px;
+      font-size: 18px;
       margin-bottom: 8px;
-      color: #374151;
+      color: var(--gray-700);
     }
 
-    /* Responsive */
+    /* MOBILE RESPONSIVE */
     @media (max-width: 768px) {
       .container {
         padding: 0 16px;
       }
       
       .stats {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        flex-direction: column;
+        margin: 24px 0;
+      }
+      
+      .stat-item {
+        padding: 12px 8px;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+      }
+      
+      .stat-item:last-child {
+        border-bottom: none;
       }
       
       .tabs {
         flex-direction: column;
+        margin-bottom: 20px;
       }
       
       .tab-btn {
-        padding: 16px 20px;
+        padding: 14px 16px;
+        font-size: 15px;
       }
       
       .stocks-grid {
@@ -340,18 +367,31 @@
         gap: 16px;
       }
       
+      .stock-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+      
+      .price-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      
+      .stock-footer {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
       .price-grid {
         grid-template-columns: 1fr;
       }
       
-      .stock-header {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-      }
-      
-      .header h1 {
-        font-size: 28px;
+      .stock-card {
+        padding: 20px;
       }
     }
   </style>
@@ -369,43 +409,39 @@
       </div>
     </header>
 
-    <!-- Stats -->
+    <!-- COMPACT STATS -->
     <div class="stats" id="stats">
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="stat-number" id="totalStocks">0</div>
-        <div class="stat-label">Total Calls</div>
+      <div class="stat-item">
+        <span class="stat-number" id="totalStocks">0</span>
+        <span class="stat-label">Total Calls</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-play"></i></div>
-        <div class="stat-number" id="activeStocks">0</div>
-        <div class="stat-label">Active</div>
+      <div class="stat-item">
+        <span class="stat-number" id="activeStocks">0</span>
+        <span class="stat-label">Active</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-        <div class="stat-number" id="winRate">0%</div>
-        <div class="stat-label">Success Rate</div>
+      <div class="stat-item">
+        <span class="stat-number" id="winRate">0%</span>
+        <span class="stat-label">Success Rate</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
-        <div class="stat-number" id="traders">0</div>
-        <div class="stat-label">Traders</div>
+      <div class="stat-item">
+        <span class="stat-number" id="traders">0</span>
+        <span class="stat-label">Traders</span>
       </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- FIXED TABS -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="intraday">
         <i class="fas fa-bolt"></i>
-        Intraday
+        <span>Intraday</span>
       </button>
       <button class="tab-btn" data-tab="shortterm">
         <i class="fas fa-chart-line"></i>
-        Short Term
+        <span>Short Term</span>
       </button>
       <button class="tab-btn" data-tab="longterm">
-        <i class="fas fa-trending-up"></i>
-        Long Term
+        <i class="fas fa-calendar-alt"></i>
+        <span>Long Term</span>
       </button>
     </div>
 
@@ -422,9 +458,10 @@
   </div>
 
   <script>
-    class Market360V215 {
+    class Market360V3 {
       constructor() {
         this.webAppUrl = 'https://script.google.com/macros/s/AKfycbyqHc-e2FFfOeOgzgpnZoLQmal7DKVD8kMC_eZw8EFO3w_8ATE7QPSj1caWkZx0qnNI/exec';
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         this.init();
       }
 
@@ -448,7 +485,6 @@
         try {
           const response = await fetch(`${this.webAppUrl}?action=getAllStockData`);
           const data = await response.json();
-          
           this.renderAllTabs(data);
           this.updateStats(data);
         } catch (error) {
@@ -468,17 +504,16 @@
           container.innerHTML = `
             <div class="empty-state">
               <i class="fas fa-chart-line"></i>
-              <h3>No ${tab.replace('term', ' Term')} calls yet</h3>
-              <p>Check back soon for expert recommendations</p>
+              <h3>No ${this.getTabName(tab)} calls</h3>
+              <p>Check back soon</p>
             </div>
           `;
           return;
         }
-        
-        container.innerHTML = stocks.map(stock => this.createStockCard(stock)).join('');
+        container.innerHTML = stocks.map(stock => this.createCard(stock)).join('');
       }
 
-      createStockCard(stock) {
+      createCard(stock) {
         const row = Array.isArray(stock) ? stock : Object.values(stock);
         const [date, symbol, company, entry, target, stopLoss, status, trader] = row.slice(0, 8);
         const pnl = parseFloat(row[10]) || 0;
@@ -493,7 +528,6 @@
               </div>
               <div class="status-badge">${status || 'ACTIVE'}</div>
             </div>
-            
             <div class="price-grid">
               <div class="price-item">
                 <div class="price-label">Entry</div>
@@ -509,10 +543,9 @@
               </div>
               <div class="price-item ${pnlClass}">
                 <div class="price-label">P&L</div>
-                <div class="price-value">${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}%</div>
+                <div class="price-value">${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%</div>
               </div>
             </div>
-            
             <div class="stock-footer">
               <div>
                 <i class="fas fa-user footer-icon"></i>
@@ -535,6 +568,11 @@
         document.getElementById('traders').textContent = '8+';
       }
 
+      getTabName(tab) {
+        const names = { intraday: 'Intraday', shortterm: 'Short Term', longterm: 'Long Term' };
+        return names[tab] || tab;
+      }
+
       formatPrice(value) {
         return parseFloat(value || 0).toLocaleString('en-IN');
       }
@@ -548,7 +586,7 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => new Market360V215());
+    new Market360V3();
   </script>
 </body>
 </html>
