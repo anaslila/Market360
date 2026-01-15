@@ -1,5 +1,5 @@
 <script>
-class Market360V35 {
+class Market360V31 {
   constructor() {
     this.webAppUrl = 'https://script.google.com/macros/s/AKfycbyqHc-e2FFfOeOgzgpnZoLQmal7DKVD8kMC_eZw8EFO3w_8ATE7QPSj1caWkZx0qnNI/exec';
     this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -11,14 +11,11 @@ class Market360V35 {
     this.bindEvents();
     this.loadData();
     this.initPWA();
-    this.initDarkMode();
-    this.initSearch();
-    this.updateMarketStatus();
     this.startAutoRefresh();
   }
 
   bindEvents() {
-    // Bottom navigation
+    // Bottom navigation tabs
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', (e) => {
         const tab = e.currentTarget.dataset.tab;
@@ -30,7 +27,7 @@ class Market360V35 {
       });
     });
 
-    // Bouncy glass cards - tap to expand
+    // Bouncy collapsible cards - tap anywhere to expand/collapse
     document.addEventListener('click', (e) => {
       const card = e.target.closest('.stock-card');
       if (card && !e.target.closest('.expand-btn')) {
@@ -53,14 +50,17 @@ class Market360V35 {
         e.preventDefault();
         this.loadData();
       }
-      if (e.key === '/') {
-        e.preventDefault();
-        document.getElementById('stockSearch').focus();
-      }
     });
   }
 
   initPWA() {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('✅ SW registered'))
+        .catch(err => console.log('❌ SW failed'));
+    }
+
     // PWA install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -68,77 +68,41 @@ class Market360V35 {
       document.getElementById('installBtn').classList.add('show');
     });
 
+    // Install button handler
     document.getElementById('installBtn').addEventListener('click', async () => {
       if (this.deferredPrompt) {
         this.deferredPrompt.prompt();
         const { outcome } = await this.deferredPrompt.userChoice;
         if (outcome === 'accepted') {
           document.getElementById('installBtn').classList.remove('show');
+          console.log('🎉 App installed!');
         }
         this.deferredPrompt = null;
       }
     });
 
+    // Hide install button if already PWA
     window.addEventListener('appinstalled', () => {
       document.getElementById('installBtn').classList.remove('show');
     });
-  }
 
-  initDarkMode() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-      document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i>';
+    // Detect standalone mode
+    if (this.isMobile && window.matchMedia('(display-mode: standalone)').matches) {
+      document.getElementById('installBtn').style.display = 'none';
     }
-
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      const isDark = document.body.classList.contains('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      document.getElementById('themeToggle').innerHTML = 
-        isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    });
-  }
-
-  initSearch() {
-    const searchInput = document.getElementById('stockSearch');
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      document.querySelectorAll('.stock-card').forEach(card => {
-        const name = card.querySelector('.stock-name')?.textContent.toLowerCase() || '';
-        const symbol = card.querySelector('.stock-symbol')?.textContent.toLowerCase() || '';
-        card.style.display = (name.includes(query) || symbol.includes(query)) ? 'block' : 'none';
-      });
-    });
-  }
-
-  updateMarketStatus() {
-    const now = new Date();
-    const istOffset = 5.5 * 60 * 60 * 1000; // IST offset
-    const istTime = new Date(now.getTime() + istOffset);
-    
-    const day = istTime.getDay();
-    const hour = istTime.getHours();
-    const minute = istTime.getMinutes();
-    
-    // Market hours: Mon-Fri 9:15 AM - 3:30 PM IST
-    const isMarketDay = day >= 1 && day <= 5;
-    const isMarketTime = hour > 9 || (hour === 9 && minute >= 15)) && 
-                        (hour < 15 || (hour === 15 && minute <= 30));
-    
-    const status = isMarketDay && isMarketTime ? '🟢 LIVE' : '🔴 CLOSED';
-    document.getElementById('nse-status').textContent = status;
-    document.getElementById('bse-status').textContent = status;
-    
-    // Update every minute
-    setInterval(() => this.updateMarketStatus(), 60000);
   }
 
   async loadData() {
     try {
-      console.log('🔄 Loading Market360 v3.5...');
+      console.log('🔄 Loading Market360 v3.1 data...');
       const response = await fetch(`${this.webAppUrl}?action=getAllStockData`);
       const data = await response.json();
+      
+      console.log('✅ Data loaded:', {
+        intraday: data.intraday?.length || 0,
+        shortterm: data.shortterm?.length || 0,
+        longterm: data.longterm?.length || 0
+      });
       
       if (data.success !== false) {
         this.renderAllTabs(data);
@@ -166,6 +130,7 @@ class Market360V35 {
       return;
     }
     
+    // Staggered entrance animation
     container.innerHTML = stocks.map((stock, index) => 
       this.createStockCard(stock, index)
     ).join('');
@@ -173,15 +138,18 @@ class Market360V35 {
 
   createStockCard(stock, index) {
     const rowData = Array.isArray(stock) ? stock : Object.values(stock);
-    const [date, symbol, company, entry, target, stopLoss, status, trader, sector, currentPrice, profitLossRaw] = rowData;
-    
+    const [
+      date, symbol, company, entry, target, stopLoss, status, trader, 
+      sector, currentPrice, profitLossRaw
+    ] = rowData;
+
     const profitLoss = parseFloat(profitLossRaw) || 0;
     const isPositive = profitLoss >= 0;
     const pnlClass = isPositive ? 'pnl-positive' : 'pnl-negative';
     const statusText = (status || 'ACTIVE').toString().toUpperCase();
 
     return `
-      <div class="stock-card" style="animation-delay: ${index * 0.08}s">
+      <div class="stock-card" style="animation-delay: ${index * 0.05}s">
         <div class="stock-header">
           <div class="stock-title">
             <div class="stock-name">${this.escapeHtml(company || 'N/A')}</div>
@@ -194,6 +162,7 @@ class Market360V35 {
             </button>
           </div>
         </div>
+        
         <div class="card-summary">
           <div class="price-grid">
             <div class="price-item">
@@ -214,10 +183,17 @@ class Market360V35 {
             </div>
           </div>
         </div>
+        
         <div class="card-details">
           <div class="stock-footer">
-            <div><i class="fas fa-user footer-icon"></i>${this.escapeHtml(trader || 'Expert')}</div>
-            <div><i class="fas fa-calendar footer-icon"></i>${this.formatDate(date)}</div>
+            <div>
+              <i class="fas fa-user footer-icon"></i>
+              ${this.escapeHtml(trader || 'Expert Trader')}
+            </div>
+            <div>
+              <i class="fas fa-calendar footer-icon"></i>
+              ${this.formatDate(date)}
+            </div>
           </div>
         </div>
       </div>
@@ -225,34 +201,47 @@ class Market360V35 {
   }
 
   updateStats(data) {
-    const totalCalls = (data.intraday?.length || 0) + (data.shortterm?.length || 0) + (data.longterm?.length || 0);
-    
-    let activeCalls = 0;
-    let positivePnls = 0, totalPnls = 0;
-    const uniqueTraders = new Set();
+    const totalCalls = (data.intraday?.length || 0) + 
+                      (data.shortterm?.length || 0) + 
+                      (data.longterm?.length || 0);
 
+    let activeCalls = 0;
     [data.intraday, data.shortterm, data.longterm].forEach(tabData => {
       if (tabData) {
         activeCalls += tabData.filter(stock => {
           const row = Array.isArray(stock) ? stock : Object.values(stock);
-          return (row[6] || '').toString().toLowerCase().includes('active');
+          const status = (row[6] || '').toString().toLowerCase();
+          return status.includes('active') || status.includes('live');
         }).length;
-        
+      }
+    });
+
+    let positivePnls = 0, totalPnls = 0;
+    [data.intraday, data.shortterm, data.longterm].forEach(tabData => {
+      if (tabData) {
         tabData.forEach(stock => {
           const row = Array.isArray(stock) ? stock : Object.values(stock);
           const pnl = parseFloat(row[10]);
-          const trader = row[7];
-          
           if (!isNaN(pnl)) {
             totalPnls++;
             if (pnl > 0) positivePnls++;
           }
-          if (trader) uniqueTraders.add(trader.toString());
         });
       }
     });
 
     const winRate = totalPnls > 0 ? Math.round((positivePnls / totalPnls) * 100) : 0;
+    const uniqueTraders = new Set();
+
+    [data.intraday, data.shortterm, data.longterm].forEach(tabData => {
+      if (tabData) {
+        tabData.forEach(stock => {
+          const row = Array.isArray(stock) ? stock : Object.values(stock);
+          const trader = row[7];
+          if (trader) uniqueTraders.add(trader.toString());
+        });
+      }
+    });
 
     document.getElementById('totalStocks').textContent = totalCalls;
     document.getElementById('activeStocks').textContent = activeCalls;
@@ -261,24 +250,23 @@ class Market360V35 {
   }
 
   getEmptyState(tab) {
-    const icons = { intraday: 'fa-bolt', shortterm: 'fa-chart-line', longterm: 'fa-calendar-alt' };
-    const names = { intraday: 'Intraday', shortterm: 'Short Term', longterm: 'Long Term' };
-    
+    const tabNames = { intraday: 'Intraday', shortterm: 'Short Term', longterm: 'Long Term' };
     return `
       <div class="empty-state">
-        <i class="fas ${icons[tab]}"></i>
-        <h3>No ${names[tab]} Calls</h3>
-        <p>Expert recommendations will appear here</p>
+        <i class="fas fa-chart-line"></i>
+        <h3>No ${tabNames[tab]} Calls</h3>
+        <p>Expert recommendations appear here</p>
       </div>
     `;
   }
 
   showErrorState() {
     ['intraday', 'shortterm', 'longterm'].forEach(tab => {
-      document.getElementById(`${tab}Stocks`).innerHTML = `
+      const container = document.getElementById(`${tab}Stocks`);
+      container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-wifi-slash"></i>
-          <h3>No Connection</h3>
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Connection Error</h3>
           <p>Press Ctrl+R to retry</p>
         </div>
       `;
@@ -286,42 +274,60 @@ class Market360V35 {
   }
 
   formatPrice(value) {
-    return parseFloat(value || 0).toLocaleString('en-IN');
+    const num = parseFloat(value) || 0;
+    return num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
   }
 
   formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
     try {
-      return new Date(dateStr).toLocaleDateString('en-IN', { 
-        day: 'numeric', month: 'short', year: 'numeric' 
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
       });
     } catch {
-      return 'N/A';
+      return dateStr.toString().slice(0, 10);
     }
   }
 
   escapeHtml(text) {
-    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-    return text?.toString().replace(/[&<>"']/g, m => map[m]) || '';
+    if (!text) return '';
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
   }
 
   startAutoRefresh() {
     setInterval(() => {
-      console.log('🔄 Auto-refresh v3.5...');
+      console.log('🔄 Auto-refreshing...');
       this.loadData();
     }, 300000); // 5 minutes
   }
 }
 
-// Initialize
+// Initialize when DOM ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new Market360V35());
+  document.addEventListener('DOMContentLoaded', () => new Market360V31());
 } else {
-  new Market360V35();
+  new Market360V31();
 }
 
-// Global error handling
-window.onerror = (msg, url, line, col, error) => {
-  console.error('Global error:', { msg, url, line, col, error });
+// Global error handler
+window.onerror = (msg, url, lineNo, columnNo, error) => {
+  console.error('Global error:', { msg, url, lineNo, columnNo, error });
   return false;
 };
+
+// Network status
+window.addEventListener('online', () => {
+  console.log('🌐 Online - refreshing...');
+  setTimeout(() => new Market360V31().loadData(), 1000);
+});
 </script>
